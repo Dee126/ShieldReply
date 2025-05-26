@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktiver Businessplan: Shield Reply GmbH</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Visualization & Content Choices:
+        - Exec Summary -> Management Summary section with key stats (HTML) and dynamic text updates. Goal: Quick grasp of core plan.
+        - Intro (Vision, Mission, Values, Team, Rationale) -> Über Shield Reply section (HTML). Goal: Introduce Shield Reply.
+        - Market Analysis (Size, Trends, Competition, Opportunities) -> Die Marktchance section with text summaries for market size/trends/competition (HTML) and opportunities. Goal: Showcase market potential. (Quantitative chart for market size omitted due to qualitative nature in source and to maintain focus).
+        - Strategy (Customers, Services, USPs, SWOT) -> Unsere Strategie section with interactive cards/lists for services (HTML/JS), and a structured SWOT display (HTML). Goal: Detail the strategic approach.
+        - Roadmap, Financials (Revenue, Headcount, Funding) -> Roadmap & Finanzen section with key milestones list (HTML), line charts for revenue (Chart.js - base vs. funded), bar chart for headcount (Chart.js - base vs. funded). Goal: Visualize growth and financial plan.
+        - Key Success Factors, Risks -> Erfolgsfaktoren & Risiken section with interactive lists/cards (HTML/JS). Goal: Highlight critical elements.
+        - All charts use Chart.js (Canvas). No SVG/Mermaid. Textual content is presented in expandable sections or clear blocks. Interactions focus on drill-down and scenario comparison. -->
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chart-container { position: relative; width: 100%; max-width: 700px; margin-left: auto; margin-right: auto; height: 320px; max-height: 400px; }
+        @media (min-width: 768px) { .chart-container { height: 400px; } }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-link { cursor: pointer; }
+        /* Custom scrollbar for better aesthetics if needed, but Tailwind doesn't directly support this. Keeping it simple. */
+        .section-fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+        .section-fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <header class="bg-gray-300 text-slate-800 sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+		<img src="https://dam-media.reply.com/production/16/80/f02e6138-a856-e869-7b3e-64536bd12b66/387dce3b-3af4-4ebd-a33f-780a6ad02843.svg" alt="Spike Reply Logo" class="h-10 mr-3" onerror="this.onerror=null; this.src='https://placehold.co/100x40/08383D/FFFFFF?text=Logo';">
+                    <h1 class="text-xl sm:text-2xl font-bold">Shield Reply GmbH</h1>
+                </div>
+                <nav class="hidden md:flex space-x-4">
+                    <a href="#Management Summary" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700">Management Summary</a>
+                    <a href="#ueber-uns" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700">Über Uns</a>
+                    <a href="#marktchance" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700">Marktchance</a>
+                    <a href="#strategie" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700">Strategie</a>
+                    <a href="#roadmap-finanzen" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700">Roadmap & Finanzen</a>
+                    <a href="#erfolgsfaktoren-risiken" class="nav-link px-3 py-2 rounded-md text-sm font-medium hover:bg-slate-700">Erfolgsfaktoren & Risiken</a>
+                </nav>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-white hover:text-slate-300 focus:outline-none">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="md:hidden hidden bg-slate-700">
+            <a href="#Management Summary" class="nav-link block px-3 py-2 text-base font-medium hover:bg-slate-600">Management Summary</a>
+            <a href="#ueber-uns" class="nav-link block px-3 py-2 text-base font-medium hover:bg-slate-600">Über Uns</a>
+            <a href="#marktchance" class="nav-link block px-3 py-2 text-base font-medium hover:bg-slate-600">Marktchance</a>
+            <a href="#strategie" class="nav-link block px-3 py-2 text-base font-medium hover:bg-slate-600">Strategie</a>
+            <a href="#roadmap-finanzen" class="nav-link block px-3 py-2 text-base font-medium hover:bg-slate-600">Roadmap & Finanzen</a>
+            <a href="#erfolgsfaktoren-risiken" class="nav-link block px-3 py-2 text-base font-medium hover:bg-slate-600">Erfolgsfaktoren & Risiken</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <section id="Management Summary" class="mb-12 section-fade-in">
+            <h2 class="text-3xl font-bold text-slate-700 mb-6 border-b-2 border-teal-500 pb-2">Management Summary Businessplan der Shield Reply GmbH</h2>
+            <p class="text-lg text-slate-600 mb-6">Dieser interaktive Businessplan gibt Ihnen einen schnellen Überblick über die wichtigsten Ziele, Strategien und Finanzprognosen der Shield Reply GmbH für die nächsten vier Jahre. Entdecken Sie, wie Shield Reply plant, sich im deutschen Verteidigungssektor zu etablieren und als führender IT-Dienstleister zu positionieren.</p>
+            <div class="grid md:grid-cols-3 gap-6 text-center">
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <h3 class="text-xl font-semibold text-teal-600 mb-2">Umsatzziel (Jahr 4)</h3>
+                    <p class="text-3xl font-bold text-slate-700">5 Mio. €</p>
+                    <p class="text-sm text-slate-500">Geplanter Jahresumsatz</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <h3 class="text-xl font-semibold text-teal-600 mb-2">Mitarbeiter (Jahr 4)</h3>
+                    <p class="text-3xl font-bold text-slate-700">~25</p>
+                    <p class="text-sm text-slate-500">Umsatzgenerierende Fachkräfte (exkl. GF)</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                    <h3 class="text-xl font-semibold text-teal-600 mb-2">Kern-Dienstleistungen</h3>
+                    <p class="text-slate-700">Cybersecurity, Cloud, KI & Datenanalyse, IT-Beratung</p>
+                </div>
+            </div>
+            <p class="mt-6 text-slate-600">Die Shield Reply GmbH, eine Tochter der Reply Deutschland SE, wird gegründet, um den deutschen Verteidigungssektor mit innovativen und sicheren IT-Lösungen zu unterstützen. Angesichts der "Zeitenwende" und des erhöhten Bedarfs an Digitalisierung ist Shield Reply strategisch positioniert, um einen signifikanten Beitrag zu leisten.</p>
+        </section>
+
+        <section id="ueber-uns" class="mb-12 section-fade-in">
+            <h2 class="text-3xl font-bold text-slate-700 mb-6 border-b-2 border-teal-500 pb-2">Über Shield Reply</h2>
+            <p class="text-lg text-slate-600 mb-6">Lernen Sie die Vision, Mission und die Kernwerte der Shield Reply GmbH kennen. Erfahren Sie mehr über das Gründungsteam und die strategische Rationale hinter dem Eintritt in den Verteidigungsmarkt.</p>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Vision</h3>
+                <p class="text-slate-700">Shield Reply strebt danach, der bevorzugte und vertrauenswürdige IT-Partner für eine sichere und digital souveräne deutsche Verteidigungslandschaft zu sein.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Mission</h3>
+                <p class="text-slate-700">Die Shield Reply GmbH hat es sich zur Aufgabe gemacht, den deutschen Verteidigungssektor durch die Bereitstellung innovativer, sicherer und resilienter IT-Lösungen zu stärken. Dabei setzen wir auf die technologische Exzellenz, die agilen Entwicklungsmethoden und das umfassende Know-how der Reply Gruppe.</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Werte</h3>
+                <ul class="list-disc list-inside text-slate-700 space-y-1">
+                    <li><strong>Integrität:</strong> Unbedingte Einhaltung ethischer Grundsätze und rechtlicher Rahmenbedingungen.</li>
+                    <li><strong>Sicherheit:</strong> Höchste Standards bei der Gewährleistung von Informationssicherheit und Datenschutz.</li>
+                    <li><strong>Innovation:</strong> Kontinuierliches Streben nach technologisch führenden Lösungen.</li>
+                    <li><strong>Agilität:</strong> Flexible und schnelle Anpassung an sich wandelnde Anforderungen.</li>
+                    <li><strong>Partnerschaft:</strong> Aufbau langfristiger und vertrauensvoller Beziehungen.</li>
+                    <li><strong>Exzellenz:</strong> Verpflichtung zu höchsten Qualitätsstandards.</li>
+                </ul>
+            </div>
+             <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Gründungsmanagement & Rationale</h3>
+                <p class="text-slate-700 mb-2">Die Geschäftsführung (Alexander Gruß, Daniel Schormann, Jörg Hensen) bringt kombinierte Expertise ein, um die Herausforderungen des Verteidigungsmarktes zu meistern. Die potenzielle Erfahrung von Herrn Alexander Gruß im Umfeld der BWI GmbH könnte ein signifikanter strategischer Vorteil sein.</p>
+                <p class="text-slate-700">Reply Deutschland SE tritt in den Verteidigungssektor ein, um Kernkompetenzen (KI, Cloud, Cyber) zu nutzen, zur nationalen Sicherheit beizutragen und das Marktpotenzial der "Zeitenwende" zu erschließen.</p>
+            </div>
+        </section>
+
+        <section id="marktchance" class="mb-12 section-fade-in">
+            <h2 class="text-3xl font-bold text-slate-700 mb-6 border-b-2 border-teal-500 pb-2">Die Marktchance</h2>
+            <p class="text-lg text-slate-600 mb-6">Der deutsche Verteidigungssektor befindet sich im Wandel. Dieser Abschnitt beleuchtet die Marktgröße, wichtige Trends wie die "Zeitenwende", die Wettbewerbslandschaft und die spezifischen Chancen, die sich daraus für Shield Reply ergeben, insbesondere in den Bereichen IT, Cybersicherheit, Cloud und KI.</p>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold text-teal-600 mb-3">Marktübersicht & Trends</h3>
+                    <p class="text-slate-700 mb-2">Der deutsche Verteidigungsmarkt zeigt deutliches Wachstumspotenzial, getrieben durch die "Zeitenwende" und erhöhte Verteidigungsbudgets (Ziel: 2% des BIP, Sondervermögen 100 Mrd. €). Der Fokus liegt auf technologischer Modernisierung, Digitalisierung, Cyberabwehr und Schlüsseltechnologien wie KI.</p>
+                    <p class="text-slate-700 font-semibold">Schlüsselsegmente für Shield Reply:</p>
+                    <ul class="list-disc list-inside text-slate-700 space-y-1 mt-1">
+                        <li>Cybersicherheit (Sehr hohe Bedeutung, stark wachsend)</li>
+                        <li>Sichere Cloud-Lösungen (Hohe Bedeutung, stark wachsend)</li>
+                        <li>KI & Datenanalyse (Mittel bis hohe Bedeutung, sehr stark wachsend)</li>
+                        <li>IT-Beratung & Systemintegration (Hohe Bedeutung, wachsend)</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold text-teal-600 mb-3">Wettbewerb & Chancen</h3>
+                    <p class="text-slate-700 mb-2">Der Markt umfasst große etablierte Akteure (Rheinmetall, Airbus, Hensoldt), internationale Konzerne und spezialisierte IT-Anbieter (BWI GmbH als zentraler Akteur). Trotzdem eröffnen der Modernisierungsdruck und der Bedarf an innovativen digitalen Lösungen Chancen für agile neue Marktteilnehmer wie Shield Reply.</p>
+                    <p class="text-slate-700 font-semibold">Chancen für Shield Reply:</p>
+                    <ul class="list-disc list-inside text-slate-700 space-y-1 mt-1">
+                        <li>Hoher Bedarf an robusten Cybersicherheitslösungen.</li>
+                        <li>Nachfrage nach sicheren Cloud-Migrationen und -Management.</li>
+                        <li>Einsatz von KI für ISR, prädiktive Instandhaltung, Logistik.</li>
+                        <li>Beratung bei digitaler Transformation und Software-Defined Defence.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-md mt-6">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Herausforderungen</h3>
+                <p class="text-slate-700">Eintrittsbarrieren umfassen hohe regulatorische Anforderungen, lange Verkaufszyklen, etablierte Beziehungen der Wettbewerber, strenge Sicherheitsanforderungen und den Fachkräftemangel.</p>
+            </div>
+        </section>
+
+        <section id="strategie" class="mb-12 section-fade-in">
+            <h2 class="text-3xl font-bold text-slate-700 mb-6 border-b-2 border-teal-500 pb-2">Unsere Strategie</h2>
+            <p class="text-lg text-slate-600 mb-6">Entdecken Sie die Kernstrategie von Shield Reply: von den Zielkundensegmenten über das geplante Dienstleistungsportfolio bis hin zu den einzigartigen Verkaufsargumenten (USPs). Eine SWOT-Analyse fasst die internen Stärken und Schwächen sowie die externen Chancen und Risiken zusammen.</p>
+
+            <div class="mb-6">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Zielkundensegmente</h3>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 bg-white p-4 rounded-lg shadow">
+                    <li><strong>Primär:</strong> BWI, Bundeswehr (inkl. KdoCIR), BAAINBw (insb. Abt. I & G).</li>
+                    <li><strong>Sekundär:</strong> Generalunternehmer der Verteidigungsindustrie (als Subunternehmer).</li>
+                    <li><strong>Tertiär/Explorativ:</strong> Weitere Sicherheitsbehörden, NATO-Agenturen, EU-Verteidigungsprojekte.</li>
+                    <li><strong>Strategisch wichtig:</strong> BWI GmbH (als potenzieller Partner/Kunde).</li>
+                </ul>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Dienstleistungsportfolio</h3>
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-lg shadow"><strong>Cybersecurity Services:</strong> SOC-as-a-Service, Threat Intel, Pentests, DevSecOps, IT-Grundschutz.</div>
+                    <div class="bg-white p-4 rounded-lg shadow"><strong>Sichere Cloud-Lösungen:</strong> Beratung, Migration, sichere Architekturen für Private/Hybrid Clouds.</div>
+                    <div class="bg-white p-4 rounded-lg shadow"><strong>Datenanalyse & KI:</strong> Lösungen für ISR, Predictive Maintenance, Logistik, Simulation, Führungssysteme.</div>
+                    <div class="bg-white p-4 rounded-lg shadow"><strong>Softwareentwicklung & Systemintegration:</strong> Agile Entwicklung, COTS/MOTS-Integration, Modernisierung, C4I, Digital Twins.</div>
+                    <div class="bg-white p-4 rounded-lg shadow md:col-span-2"><strong>IT-Beratung für den Verteidigungssektor:</strong> Strategie, Digitalisierungsprojekte, Prozessoptimierung.</div>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                 <h3 class="text-2xl font-semibold text-teal-600 mb-3">Alleinstellungsmerkmale (USPs)</h3>
+                <ul class="list-disc list-inside text-slate-700 space-y-1 bg-white p-4 rounded-lg shadow">
+                    <li>Agilität und Innovationskraft der Reply Gruppe.</li>
+                    <li>Umfassende Technologieexpertise (KI, Cloud, Cyber, IoT).</li>
+                    <li>Deutsche/Europäische Verankerung und Kundennähe.</li>
+                    <li>Synergien mit Reply Deutschland SE (Talentpool, Infrastruktur).</li>
+                    <li>Führungsteam mit potenzieller Sektor-Expertise (A. Gruß).</li>
+                    <li>Fokus auf Software-Defined Capabilities.</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-2xl font-semibold text-teal-600 mb-4">SWOT-Analyse</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-xl font-semibold text-slate-700 mb-2">Stärken (Strengths)</h4>
+                        <ul class="list-disc list-inside bg-green-100 p-4 rounded-lg shadow text-green-800 space-y-1">
+                            <li>Rückhalt durch Reply Deutschland SE (Marke, Ressourcen, Expertise).</li>
+                            <li>Erfahrenes Gründungsmanagement (potenziell A. Gruß mit Sektor-Erfahrung).</li>
+                            <li>Fokus auf stark nachgefragte IT-Bereiche.</li>
+                            <li>Agilität als neue Einheit.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold text-slate-700 mb-2">Schwächen (Weaknesses)</h4>
+                        <ul class="list-disc list-inside bg-red-100 p-4 rounded-lg shadow text-red-800 space-y-1">
+                            <li>Neuer Marktteilnehmer ohne Erfolgsbilanz im Sektor.</li>
+                            <li>Fehlende verteidigungsspezifische Zertifikate initial.</li>
+                            <li>Abhängigkeit von Muttergesellschaft.</li>
+                            <li>Keine Mitarbeiter bei Gründung (außer GF).</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold text-slate-700 mb-2">Chancen (Opportunities)</h4>
+                        <ul class="list-disc list-inside bg-sky-100 p-4 rounded-lg shadow text-sky-800 space-y-1">
+                            <li>"Zeitenwende" mit erhöhten Verteidigungsausgaben.</li>
+                            <li>Wachsende Nachfrage nach Cyber, KI, Cloud.</li>
+                            <li>Potenzial für Partnerschaften (BWI, Primes).</li>
+                            <li>EU/NATO Förderprogramme.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold text-slate-700 mb-2">Risiken (Threats)</h4>
+                        <ul class="list-disc list-inside bg-amber-100 p-4 rounded-lg shadow text-amber-800 space-y-1">
+                            <li>Starker Wettbewerb.</li>
+                            <li>Komplexe, langwierige Beschaffungsprozesse.</li>
+                            <li>Hürden bei Sicherheitsfreigaben.</li>
+                            <li>Fachkräftemangel (sicherheitsüberprüft).</li>
+                            <li>Politische/Budget-Änderungen.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap-finanzen" class="mb-12 section-fade-in">
+            <h2 class="text-3xl font-bold text-slate-700 mb-6 border-b-2 border-teal-500 pb-2">Roadmap & Finanzen</h2>
+            <p class="text-lg text-slate-600 mb-6">Dieser Bereich visualisiert den Implementierungsfahrplan und die finanziellen Projektionen für Shield Reply über die nächsten vier Jahre. Interaktive Diagramme zeigen die geplante Umsatzentwicklung, den Personalaufbau und die Auswirkungen verschiedener Finanzierungsszenarien.</p>
+
+            <div class="mb-8 bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Wichtige Übergreifende Meilensteine (4-Jahresplan)</h3>
+                <ul class="list-decimal list-inside text-slate-700 space-y-2">
+                    <li><strong>Jahr 0/1:</strong> Gründung, operative Aufnahme, Basiszertifizierungen (ISO 9001/27001), Start Geheimschutzprozess & SÜG für GFs, erste 1-2 Mitarbeiter, erstes Pilotprojekt.</li>
+                    <li><strong>Jahr 2:</strong> Anerkennung als "geheimschutzbetreutes Unternehmen", erste SÜG-Freigaben, erster Direktauftrag Bundeswehr/BAAINBw, Team >5 MA, Umsatz >1 Mio. €.</li>
+                    <li><strong>Jahr 3:</strong> Team >12 MA, Umsatz >2,5 Mio. €, etablierte Service Lines, Profitabilität.</li>
+                    <li><strong>Jahr 4:</strong> Team ~25 MA, Umsatzziel 5 Mio. € erreicht, solide Finanzbasis, anerkannte Marktposition.</li>
+                </ul>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-semibold text-teal-600 mb-4 text-center">Umsatzprognose (Mio. €)</h3>
+                    <div class="chart-container bg-white p-4 rounded-lg shadow-md">
+                        <canvas id="umsatzChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-semibold text-teal-600 mb-4 text-center">Personalaufbau (Umsatzgenerierende MA)</h3>
+                    <div class="chart-container bg-white p-4 rounded-lg shadow-md">
+                        <canvas id="personalChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-2xl font-semibold text-teal-600 mb-3">Finanzierungsstrategie</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-xl font-semibold text-slate-700 mb-2">1. Basisszenario: Bootstrapping / Interne Finanzierung</h4>
+                        <p class="text-slate-700">Initialer Kapitalbedarf durch Eigenkapital/Gesellschafterdarlehen von Reply Deutschland SE. Erfordert schlanke Kosten und schnellen Weg zur Profitabilität.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold text-slate-700 mb-2">2. Szenario: Förderung von 1 Mio. € durch Reply Deutschland SE</h4>
+                        <p class="text-slate-700 mb-1">Könnte Wachstum beschleunigen. Mögliche Quellen: KfW, EIF, Defense Tech VCs, NATO Innovation Fund.</p>
+                        <p class="text-slate-700">Verwendung: Beschleunigter Personalaufbau, Marketing, Zertifizierungen, PoCs.</p>
+                    </div>
+                </div>
+                 <p class="text-sm text-slate-500 mt-4">Hinweis: Die Diagramme zeigen Mittelwerte der prognostizierten Bereiche für beide Szenarien.</p>
+            </div>
+        </section>
+
+        <section id="erfolgsfaktoren-risiken" class="mb-12 section-fade-in">
+            <h2 class="text-3xl font-bold text-slate-700 mb-6 border-b-2 border-teal-500 pb-2">Erfolgsfaktoren & Risiken</h2>
+            <p class="text-lg text-slate-600 mb-6">Jeder Businessplan birgt Chancen und Risiken. Hier finden Sie eine Zusammenfassung der kritischen Erfolgsfaktoren für Shield Reply sowie eine Bewertung der potenziellen Risiken und der Strategien zu deren Minimierung.</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold text-teal-600 mb-3">Kritische Erfolgsfaktoren</h3>
+                    <ul class="list-disc list-inside text-slate-700 space-y-1">
+                        <li>Starke, klar definierte Führung und Zusammenarbeit der GFs.</li>
+                        <li>Schnelle Erlangung von Zulassungen (Geheimschutz, SÜG).</li>
+                        <li>Beherrschung der komplexen Beschaffungsprozesse.</li>
+                        <li>Aufbau von Vertrauen und Beziehungen zu Schlüsselakteuren.</li>
+                        <li>Nutzung der Reply-Stärken (Technologie, Marke, Agilität).</li>
+                        <li>Gewinnung und Bindung von hochqualifiziertem Fachpersonal.</li>
+                        <li>Solides Finanzmanagement und ggf. erfolgreiche externe Finanzierung.</li>
+                    </ul>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold text-teal-600 mb-3">Schlüsselrisiken & Mitigation (Beispiele)</h3>
+                    <ul class="list-disc list-inside text-slate-700 space-y-1">
+                        <li><strong>Lange Verkaufszyklen/Liquiditätsengpässe:</strong> Fokus auf kleinere Initialaufträge, striktes Cashflow-Management.</li>
+                        <li><strong>Verzögerungen bei Zertifizierungen/Freigaben:</strong> Frühestmöglicher Start, Puffer einplanen, externe Beratung.</li>
+                        <li><strong>Schwierigkeiten bei Personalrekrutierung:</strong> Attraktive Pakete, Arbeitgebermarke, Nutzung Reply-Netzwerk.</li>
+                        <li><strong>Abhängigkeit von Einzelkunden:</strong> Bewusste Diversifizierung des Kundenstamms anstreben.</li>
+                        <li><strong>Reputationsrisiken:</strong> Transparente Kommunikation, Fokus auf defensive IT-Lösungen.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-white text-center p-6 mt-12">
+        <p>&copy; <span id="currentYear"></span> Shield Reply GmbH (Konzeptueller Businessplan). Alle Rechte vorbehalten.</p>
+        <p class="text-sm text-slate-400">Diese interaktive Darstellung dient zur Veranschaulichung des Businessplans.</p>
+    </footer>
+
+    <script>
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Smooth Scrolling for Nav Links & Close Mobile Menu
+        document.querySelectorAll('.nav-link').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+                if (mobileMenu.classList.contains('hidden') === false) {
+                    mobileMenu.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Intersection Observer for fade-in sections
+        const sections = document.querySelectorAll('.section-fade-in');
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+
+        // Chart.js Implementations
+        const umsatzData = {
+            labels: ['Jahr 1', 'Jahr 2', 'Jahr 3', 'Jahr 4'],
+            datasets: [
+                {
+                    label: 'Umsatz Basisszenario (Mio. €)',
+                    data: [0.4, 1.0, 2.4, 5.0], // Midpoints: (300-500)/2=400k, (800-1200)/2=1M, (2000-2800)/2=2.4M, (4500-5500)/2=5M
+                    borderColor: 'rgb(59, 130, 246)', // Tailwind blue-500
+                    backgroundColor: 'rgba(59, 130, 246, 0.5)',
+                    tension: 0.1,
+                    fill: false,
+                },
+                {
+                    label: 'Umsatz mit Förderung (Mio. €)',
+                    data: [0.55, 1.5, 3.3, 5.75], // Midpoints: (400-700)/2=550k, (1200-1800)/2=1.5M, (2800-3800)/2=3.3M, (5000-6500)/2=5.75M
+                    borderColor: 'rgb(16, 185, 129)', // Tailwind emerald-500
+                    backgroundColor: 'rgba(16, 185, 129, 0.5)',
+                    tension: 0.1,
+                    fill: false,
+                }
+            ]
+        };
+        const umsatzConfig = {
+            type: 'line',
+            data: umsatzData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Umsatz in Mio. €' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y + ' Mio. €';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const umsatzChartCtx = document.getElementById('umsatzChart')?.getContext('2d');
+        if (umsatzChartCtx) new Chart(umsatzChartCtx, umsatzConfig);
+
+        const personalData = {
+            labels: ['Jahr 1', 'Jahr 2', 'Jahr 3', 'Jahr 4'],
+            datasets: [
+                {
+                    label: 'MA Basisszenario',
+                    data: [2, 6, 14, 25], // Using higher end of range or specified values for clarity
+                                         // J1: 1-2 -> 2, J2: 5-7 -> 6, J3: 12-15 -> 14, J4: ~25 -> 25
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)', // Tailwind blue-500 with opacity
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'MA mit Förderung',
+                    data: [3, 8, 17, 29], // J1: 2-3 -> 3, J2: 7-9 -> 8, J3: 15-18 -> 17, J4: ~28-30 -> 29
+                    backgroundColor: 'rgba(16, 185, 129, 0.7)', // Tailwind emerald-500 with opacity
+                    borderColor: 'rgb(16, 185, 129)',
+                    borderWidth: 1
+                }
+            ]
+        };
+        const personalConfig = {
+            type: 'bar',
+            data: personalData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Anzahl Mitarbeiter' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                     tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += context.parsed.y + ' MA';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        const personalChartCtx = document.getElementById('personalChart')?.getContext('2d');
+        if (personalChartCtx) new Chart(personalChartCtx, personalConfig);
+
+    </script>
+</body>
+</html>
